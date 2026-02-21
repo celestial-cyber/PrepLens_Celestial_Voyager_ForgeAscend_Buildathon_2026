@@ -17,7 +17,10 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  setDoc,
+  updateDoc,
 } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 
 // TODO: replace with your Firebase config (or use env vars)
 const firebaseConfig = {
@@ -51,6 +54,15 @@ async function getUserDoc(uid) {
   return snap.exists() ? { id: snap.id, ...snap.data() } : null
 }
 
+async function updateUserReadiness(uid, readiness) {
+  const ref = doc(db, 'Users', uid)
+  await updateDoc(ref, { readinessScore: readiness })
+}
+
+function onAuthState(cb) {
+  return onAuthStateChanged(auth, cb)
+}
+
 async function getAllStudents() {
   const q = query(usersCol, where('role', '==', 'student'))
   const snaps = await getDocs(q)
@@ -79,4 +91,8 @@ export {
   limit,
   addDoc,
   createTask,
+  setDoc,
+  updateDoc,
+  updateUserReadiness,
+  onAuthState,
 }
