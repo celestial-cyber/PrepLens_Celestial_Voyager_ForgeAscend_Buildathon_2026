@@ -31,13 +31,17 @@ function ensureAuthReady() {
 }
 
 function canUseStorage() {
-  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
 }
 
 function getDemoSession() {
   if (!canUseStorage()) return null;
   try {
-    const raw = window.localStorage.getItem(DEMO_SESSION_KEY);
+    // Cleanup legacy key if it exists from older builds that used localStorage.
+    if (typeof window.localStorage !== 'undefined') {
+      window.localStorage.removeItem(DEMO_SESSION_KEY);
+    }
+    const raw = window.sessionStorage.getItem(DEMO_SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -46,12 +50,12 @@ function getDemoSession() {
 
 function setDemoSession(user) {
   if (!canUseStorage()) return;
-  window.localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
+  window.sessionStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
 }
 
 function clearDemoSession() {
   if (!canUseStorage()) return;
-  window.localStorage.removeItem(DEMO_SESSION_KEY);
+  window.sessionStorage.removeItem(DEMO_SESSION_KEY);
 }
 
 function getRoleFromEmail(email, password) {

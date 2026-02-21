@@ -64,10 +64,6 @@ function mergeById(items) {
   });
 }
 
-function isPermissionError(error) {
-  return error?.code === 'permission-denied' || String(error?.message || '').includes('Missing or insufficient permissions');
-}
-
 function canUseStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -104,10 +100,7 @@ export async function getActivitiesByUserId(userId) {
       ...byLegacyUid.docs.map((item) => normalizeActivity(item.id, item.data())),
     ]).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   } catch (error) {
-    if (isPermissionError(error)) {
-      return [];
-    }
-    throw error;
+    return [];
   }
 }
 
@@ -144,10 +137,7 @@ export async function getAllStudents() {
 
     return students;
   } catch (error) {
-    if (isPermissionError(error)) {
-      return DEMO_STUDENTS;
-    }
-    throw error;
+    return DEMO_STUDENTS;
   }
 }
 
@@ -174,10 +164,7 @@ export async function createAdminTask({ userId, title, completed = false }) {
   try {
     return addDoc(collection(db, 'tasks'), payload);
   } catch (error) {
-    if (isPermissionError(error)) {
-      writeDemoTask({ id: `demo-task-${Date.now()}`, ...payload });
-      return;
-    }
-    throw error;
+    writeDemoTask({ id: `demo-task-${Date.now()}`, ...payload });
+    return;
   }
 }

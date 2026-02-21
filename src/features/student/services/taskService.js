@@ -28,10 +28,6 @@ function readDemoTasks(userId) {
   }
 }
 
-function isPermissionError(error) {
-  return error?.code === 'permission-denied' || String(error?.message || '').includes('Missing or insufficient permissions');
-}
-
 export function subscribeTasksForUser(userId, callback) {
   if (!db || !userId) {
     callback(readDemoTasks(userId));
@@ -48,12 +44,12 @@ export function subscribeTasksForUser(userId, callback) {
       },
       (error) => {
         console.error('Failed to subscribe to tasks.', error);
-        callback(isPermissionError(error) ? readDemoTasks(userId) : []);
+        callback(readDemoTasks(userId));
       }
     );
   } catch (error) {
     console.error('Failed to start tasks subscription.', error);
-    callback(isPermissionError(error) ? readDemoTasks(userId) : []);
+    callback(readDemoTasks(userId));
     return () => {};
   }
 }

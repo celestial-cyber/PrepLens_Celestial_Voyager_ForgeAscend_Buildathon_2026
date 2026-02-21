@@ -73,7 +73,7 @@ export function subscribeMessagesForUser(userId, callback) {
     (snapshot) => callback(snapshot.docs.map((doc) => normalizeMessage(doc.id, doc.data()))),
     (error) => {
       console.error('Failed to subscribe to messages.', error);
-      callback(isPermissionError(error) ? readStoredMessages(userId) : []);
+      callback(readStoredMessages(userId));
     }
   );
 }
