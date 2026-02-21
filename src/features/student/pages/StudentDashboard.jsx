@@ -57,10 +57,32 @@ export default function StudentDashboard() {
     const hoursStudied = activities.reduce((acc, item) => acc + item.hours, 0);
     const completedTasks = progress?.completedTasks ?? tasks.filter((task) => task.completed).length;
     const totalActivities = activities.length;
-    const totalCodingCount =
-      activities.filter((item) => /coding|code|program/i.test(item.topic || item.title || '')).length || 0;
+    const totalCodingCount = activities.filter((item) => item.category === 'coding').length || 0;
+    const recentActivities = activities
+      .slice()
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      .slice(0, 7);
+    const weeklyHours = recentActivities.reduce((acc, item) => acc + (Number(item.hours) || 0), 0);
+    const averageDailyHours = recentActivities.length ? Math.round((weeklyHours / recentActivities.length) * 10) / 10 : 0;
     const streakDays = progress?.streakDays ?? 0;
-    return { hoursStudied, completedTasks, totalActivities, totalCodingCount, streakDays };
+    const categoryTotals = activities.reduce(
+      (acc, item) => {
+        const key = item.category || 'soft-skills';
+        acc[key] = (acc[key] || 0) + (Number(item.hours) || 0);
+        return acc;
+      },
+      { coding: 0, aptitude: 0, core: 0, 'soft-skills': 0 }
+    );
+    return {
+      hoursStudied,
+      completedTasks,
+      totalActivities,
+      totalCodingCount,
+      weeklyHours,
+      averageDailyHours,
+      streakDays,
+      categoryTotals,
+    };
   }, [activities, progress, tasks]);
 
   const readiness =
@@ -88,6 +110,13 @@ export default function StudentDashboard() {
       </section>
       <p className="dashboard-readiness">Prep readiness: {readiness}%</p>
       <SummaryCards stats={stats} />
+      <section className="dashboard-section">
+        <h3 className="dashboard-section-title">Category Progress (hours)</h3>
+        <p className="dashboard-meta">Coding: {stats.categoryTotals.coding}</p>
+        <p className="dashboard-meta">Aptitude: {stats.categoryTotals.aptitude}</p>
+        <p className="dashboard-meta">Core: {stats.categoryTotals.core}</p>
+        <p className="dashboard-meta">Soft Skills: {stats.categoryTotals['soft-skills']}</p>
+      </section>
       <ActivityChart data={chartData} />
       <StreakCard streakDays={stats.streakDays} />
       <TaskList tasks={tasks} />

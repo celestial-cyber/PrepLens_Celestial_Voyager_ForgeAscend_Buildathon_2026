@@ -15,11 +15,22 @@ import { calculateReadiness } from '../../../utils/readinessCalculator';
 
 const activities = [];
 
+function inferCategory(topic = '') {
+  const normalized = String(topic).toLowerCase();
+  if (/coding|code|program|dsa|leetcode/.test(normalized)) return 'coding';
+  if (/aptitude|quant|reason/.test(normalized)) return 'aptitude';
+  if (/core|dbms|os|cn|oop/.test(normalized)) return 'core';
+  return 'soft-skills';
+}
+
 function normalizeActivity(data) {
+  const createdAt = data.createdAt?.toMillis ? data.createdAt.toMillis() : null;
   return {
     day: data.day || 'N/A',
     hours: Number(data.hours) || 0,
     topic: data.topic || 'General study',
+    category: data.category || inferCategory(data.topic),
+    createdAt,
   };
 }
 
@@ -43,6 +54,7 @@ export async function logActivity(entry) {
     day,
     hours,
     topic,
+    category: inferCategory(topic),
     userId,
     createdAt: serverTimestamp(),
   };
@@ -74,8 +86,8 @@ export async function logActivity(entry) {
     return { success: true, entry: payload };
   }
 
-  activities.push({ day, hours, topic });
-  return { success: true, entry: { day, hours, topic } };
+  activities.push({ day, hours, topic, category: inferCategory(topic), createdAt: Date.now() });
+  return { success: true, entry: { day, hours, topic, category: inferCategory(topic) } };
 }
 
 export async function fetchActivitiesForUser(userId) {

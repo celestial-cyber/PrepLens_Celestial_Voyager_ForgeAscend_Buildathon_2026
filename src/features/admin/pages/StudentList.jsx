@@ -69,6 +69,14 @@ export default function StudentList() {
     };
   }, [activities]);
 
+  const selectedSummary = useMemo(() => {
+    if (!selectedStudent) return null;
+    const totalHours = activities.reduce((acc, item) => acc + (Number(item.hours) || 0), 0);
+    const avgHours = activities.length ? Math.round((totalHours / activities.length) * 10) / 10 : 0;
+    const isWeak = (selectedStudent.readinessScore || 0) < 40 || (selectedStudent.streakDays || 0) <= 1;
+    return { totalHours, avgHours, isWeak };
+  }, [activities, selectedStudent]);
+
   return (
     <section className="admin-page">
       <h1>Students</h1>
@@ -81,6 +89,9 @@ export default function StudentList() {
       {selectedStudent && (
         <article className="admin-card admin-student-activity">
           <h2>{selectedStudent.name} Activity</h2>
+          <p>Total hours logged: {selectedSummary?.totalHours ?? 0}</p>
+          <p>Average hours per log: {selectedSummary?.avgHours ?? 0}</p>
+          <p>Risk status: {selectedSummary?.isWeak ? 'Flagged for attention' : 'Normal'}</p>
           {activities.length > 0 ? <Bar data={activityChartData} /> : <p>No activities found.</p>}
         </article>
       )}

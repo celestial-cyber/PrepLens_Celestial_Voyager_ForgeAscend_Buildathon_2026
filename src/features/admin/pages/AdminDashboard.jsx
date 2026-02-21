@@ -74,6 +74,19 @@ export default function AdminDashboard() {
     return buckets;
   }, [students]);
 
+  const weakStudents = useMemo(() => {
+    const activeCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    return students
+      .map((student) => {
+        const reasons = [];
+        if ((student.readinessScore || 0) < 40) reasons.push('low readiness');
+        if ((student.streakDays || 0) <= 1) reasons.push('low streak');
+        if ((student.lastActiveAt || 0) < activeCutoff) reasons.push('inactive');
+        return { ...student, reasons };
+      })
+      .filter((student) => student.reasons.length > 0);
+  }, [students]);
+
   if (loading) {
     return <div className="admin-page"><p>Loading dashboard summary...</p></div>;
   }
@@ -91,7 +104,7 @@ export default function AdminDashboard() {
           No student records are available yet. Add students or check data access settings.
         </p>
       )}
-      <StatsCards stats={stats} />
+      <StatsCards stats={{ ...stats, weakStudents: weakStudents.length }} />
 
       <div className="admin-chart-grid">
         <article className="admin-card">
@@ -125,6 +138,20 @@ export default function AdminDashboard() {
           />
         </article>
       </div>
+
+      <article className="admin-card">
+        <h3>Weak Students (Auto-identified)</h3>
+        {weakStudents.length === 0 && <p>None currently flagged.</p>}
+        {weakStudents.length > 0 && (
+          <ul className="admin-flag-list">
+            {weakStudents.map((student) => (
+              <li key={student.uid || student.id}>
+                {student.name} ({student.email || 'N/A'}) - {student.reasons.join(', ')}
+              </li>
+            ))}
+          </ul>
+        )}
+      </article>
     </section>
   );
 }

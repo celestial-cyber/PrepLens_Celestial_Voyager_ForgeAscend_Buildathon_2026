@@ -15,12 +15,13 @@ export default function StudentTable({ students = [], onSelect }) {
             <th>Readiness</th>
             <th>Last Active</th>
             <th>Status</th>
+            <th>Risk</th>
           </tr>
         </thead>
         <tbody>
           {students.length === 0 && (
             <tr>
-              <td colSpan="6" className="admin-table-empty">
+              <td colSpan="7" className="admin-table-empty">
                 No students found. Once student profiles are available, they will appear here.
               </td>
             </tr>
@@ -28,6 +29,7 @@ export default function StudentTable({ students = [], onSelect }) {
           {students.map((student) => {
             const activeCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
             const isActive = (student.lastActiveAt || 0) >= activeCutoff;
+            const isWeak = (student.readinessScore || 0) < 40 || !isActive || (student.streakDays || 0) <= 1;
             return (
               <tr
                 key={student.uid || student.id}
@@ -40,6 +42,7 @@ export default function StudentTable({ students = [], onSelect }) {
                 <td>{student.readinessScore ?? 0}</td>
                 <td>{formatLastActive(student.lastActiveAt)}</td>
                 <td>{isActive ? 'Active' : 'Inactive'}</td>
+                <td>{isWeak ? <span className="admin-risk-badge">Flagged</span> : 'Normal'}</td>
               </tr>
             );
           })}
