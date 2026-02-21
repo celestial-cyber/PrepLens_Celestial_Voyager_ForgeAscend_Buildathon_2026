@@ -72,6 +72,7 @@ export default function StudentList() {
   return (
     <section className="admin-page">
       <h1>Students</h1>
+      <p className="admin-note">Select a student row to view individual activity history.</p>
       {loading && <p>Loading students...</p>}
       {error && <p className="admin-error">{error}</p>}
 

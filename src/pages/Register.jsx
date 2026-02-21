@@ -29,6 +29,8 @@ export default function Register() {
     <section className="auth-page">
       <form onSubmit={handleSubmit} className="auth-form">
         <h2 className="auth-title">Register</h2>
+        <p className="auth-subtle">Create a student account for regular use.</p>
+        <p className="auth-subtle">For jury demo, use Login with demo credentials.</p>
         <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input

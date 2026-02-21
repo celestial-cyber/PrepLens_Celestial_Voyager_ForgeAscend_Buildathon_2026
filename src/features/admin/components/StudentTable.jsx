@@ -18,6 +18,13 @@ export default function StudentTable({ students = [], onSelect }) {
           </tr>
         </thead>
         <tbody>
+          {students.length === 0 && (
+            <tr>
+              <td colSpan="6" className="admin-table-empty">
+                No students found. Once student profiles are available, they will appear here.
+              </td>
+            </tr>
+          )}
           {students.map((student) => {
             const activeCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
             const isActive = (student.lastActiveAt || 0) >= activeCutoff;

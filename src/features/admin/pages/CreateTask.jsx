@@ -55,6 +55,7 @@ export default function CreateTask() {
   return (
     <section className="admin-page">
       <h1>Create Task</h1>
+      <p className="admin-note">Assign a focused action item and optional note to keep students on track.</p>
       <form onSubmit={handleSubmit} className="admin-form">
         <label htmlFor="student-select">Student</label>
         <select

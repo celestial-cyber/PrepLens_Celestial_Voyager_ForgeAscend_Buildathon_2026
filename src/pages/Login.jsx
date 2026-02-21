@@ -36,6 +36,7 @@ export default function Login() {
     <section className="auth-page">
       <form onSubmit={handleSubmit} className="auth-form">
         <h2 className="auth-title">PrepLens Login</h2>
+        <p className="auth-subtle">Sign in to continue to your dashboard.</p>
         <p className="auth-subtle">Demo users: admin@email.com, student@email.com (password: hello)</p>
         <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input

@@ -37,6 +37,7 @@ export default function StudentMessages() {
     <section className="dashboard-page">
       <h1 className="dashboard-title">Admin Messages</h1>
       <p className="dashboard-meta">Messages for: {student?.email || 'Unknown student'}</p>
+      <p className="dashboard-meta">Check this section regularly for new tasks, reminders, and feedback.</p>
       <div className="dashboard-section">
         {messages.length === 0 && <p className="dashboard-empty">No admin messages yet.</p>}
         {messages.length > 0 && (

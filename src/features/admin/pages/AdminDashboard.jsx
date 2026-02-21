@@ -75,7 +75,7 @@ export default function AdminDashboard() {
   }, [students]);
 
   if (loading) {
-    return <div className="admin-page"><p>Loading dashboard...</p></div>;
+    return <div className="admin-page"><p>Loading dashboard summary...</p></div>;
   }
 
   if (error) {
@@ -85,6 +85,12 @@ export default function AdminDashboard() {
   return (
     <section className="admin-page">
       <h1>Admin Dashboard</h1>
+      <p className="admin-note">Monitor student engagement, readiness, and overall prep health.</p>
+      {students.length === 0 && (
+        <p className="admin-note">
+          No student records are available yet. Add students or check data access settings.
+        </p>
+      )}
       <StatsCards stats={stats} />
 
       <div className="admin-chart-grid">

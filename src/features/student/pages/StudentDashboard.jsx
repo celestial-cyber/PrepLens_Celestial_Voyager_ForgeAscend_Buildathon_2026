@@ -76,6 +76,9 @@ export default function StudentDashboard() {
   return (
     <div className="dashboard-page">
       <h1 className="dashboard-title">Student Dashboard</h1>
+      <p className="dashboard-meta">
+        Track your day-to-day prep, stay consistent, and complete your assigned tasks.
+      </p>
       <section className="dashboard-section">
         <h3 className="dashboard-section-title">Profile</h3>
         <p className="dashboard-meta"><strong>Name:</strong> {profile?.name || student?.displayName || 'Not set'}</p>

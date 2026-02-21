@@ -24,8 +24,9 @@ export default function LogActivity() {
   };
 
   return (
-    <section>
+    <section className="dashboard-page">
       <h1>Log Study Activity</h1>
+      <p className="dashboard-meta">Add today&apos;s progress so your dashboard and streak stay updated.</p>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input placeholder="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} required />
         <input
@@ -38,7 +39,7 @@ export default function LogActivity() {
         />
         <button type="submit">Save</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="dashboard-meta">{message}</p>}
       {error && <p style={styles.error}>{error}</p>}
     </section>
   );
