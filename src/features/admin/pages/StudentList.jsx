@@ -10,7 +10,6 @@ import {
 } from 'chart.js';
 import StudentTable from '../components/StudentTable';
 import { getActivitiesByUserId, getAllStudents } from '../services/adminDataService';
-import '../styles/admin.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 

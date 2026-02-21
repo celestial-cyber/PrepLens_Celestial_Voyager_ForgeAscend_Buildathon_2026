@@ -27,7 +27,11 @@ export default function ProtectedRoute({ children, redirectPath = '/login', allo
   if (allowedRoles.length > 0) {
     const role = getCurrentUserRole();
     if (!role || !allowedRoles.includes(role)) {
-      const fallback = role === 'admin' ? '/admin/dashboard' : '/student/dashboard';
+      const fallback = role === 'admin'
+        ? '/admin/dashboard'
+        : role === 'student'
+          ? '/student/dashboard'
+          : redirectPath;
       return <Navigate to={fallback} replace />;
     }
   }

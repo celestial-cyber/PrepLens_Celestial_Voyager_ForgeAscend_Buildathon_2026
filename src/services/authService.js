@@ -54,31 +54,60 @@ function clearDemoSession() {
   window.localStorage.removeItem(DEMO_SESSION_KEY);
 }
 
-function getRoleFromEmail(email) {
+function getRoleFromEmail(email, password) {
   const normalized = String(email || '').trim().toLowerCase();
-  return DEMO_USERS[normalized] || null;
+  const demoUser = DEMO_USERS[normalized] || null;
+  if (!demoUser) return null;
+  if (String(password || '') !== 'hello') {
+    throw new Error('Demo password is "hello" for both demo accounts.');
+  }
+  return demoUser;
 }
 
 export async function registerStudent({ name, email, password }) {
-  ensureAuthReady();
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  if (name) {
-    await updateProfile(userCredential.user, { displayName: name });
-  }
-  return userCredential.user;
-}
-
-export async function loginStudent({ email, password }) {
-  const demoUser = getRoleFromEmail(email);
+  const demoUser = getRoleFromEmail(email, password);
   if (demoUser) {
     setDemoSession(demoUser);
     return demoUser;
   }
 
   ensureAuthReady();
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  clearDemoSession();
-  return { ...userCredential.user, role: 'student' };
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (name) {
+      await updateProfile(userCredential.user, { displayName: name });
+    }
+    return userCredential.user;
+  } catch (error) {
+    if (error?.code === 'auth/email-already-in-use') {
+      throw new Error('This email is already registered. Please use Login instead.');
+    }
+    throw error;
+  }
+}
+
+export async function loginStudent({ email, password }) {
+  const demoUser = getRoleFromEmail(email, password);
+  if (demoUser) {
+    setDemoSession(demoUser);
+    return demoUser;
+  }
+
+  ensureAuthReady();
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    clearDemoSession();
+    return { ...userCredential.user, role: 'student' };
+  } catch (error) {
+    if (
+      error?.code === 'auth/invalid-credential' ||
+      error?.code === 'auth/wrong-password' ||
+      error?.code === 'auth/user-not-found'
+    ) {
+      throw new Error('Invalid login. For demo, use admin@email.com or student@email.com on Login page.');
+    }
+    throw error;
+  }
 }
 
 export async function logoutStudent() {
@@ -129,7 +158,8 @@ export function getCurrentUserRole() {
   const email = String(current.email || '').toLowerCase();
   if (email === 'admin@email.com' || current.role === 'admin') return 'admin';
   if (email === 'student@email.com' || current.role === 'student') return 'student';
-  return null;
+  // Default any authenticated non-admin to student to avoid protected-route redirect loops.
+  return 'student';
 }
 
 export function subscribeToStudentAuth(callback) {

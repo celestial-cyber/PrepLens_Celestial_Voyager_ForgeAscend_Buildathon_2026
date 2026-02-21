@@ -26,36 +26,25 @@ export default function Register() {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <h2>Register</h2>
-      <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Creating...' : 'Create Account'}
-      </button>
-      {error && <p style={styles.error}>{error}</p>}
-      <p>
-        Already registered? <Link to="/login">Sign in</Link>
-      </p>
-    </form>
+    <section className="auth-page">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <h2 className="auth-title">Register</h2>
+        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Create Account'}
+        </button>
+        {error && <p className="auth-error">{error}</p>}
+        <p className="auth-subtle">
+          Already registered? <Link to="/login">Sign in</Link>
+        </p>
+      </form>
+    </section>
   );
 }
-
-const styles = {
-  form: {
-    maxWidth: 360,
-    margin: '48px auto',
-    display: 'grid',
-    gap: 10,
-    padding: 16,
-    border: '1px solid #ddd',
-    borderRadius: 8,
-  },
-  error: { margin: 0, color: '#b00020' },
-};

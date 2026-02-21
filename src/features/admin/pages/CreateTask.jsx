@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createAdminTask, getAllStudents } from '../services/adminDataService';
 import { appendAdminMessage } from '../../student/services/messageService';
-import '../styles/admin.css';
 
 export default function CreateTask() {
   const [students, setStudents] = useState([]);

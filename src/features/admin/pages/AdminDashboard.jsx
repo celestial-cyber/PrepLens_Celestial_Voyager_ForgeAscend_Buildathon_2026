@@ -12,7 +12,6 @@ import {
 import StatsCards from '../components/StatsCards';
 import { getAllStudents } from '../services/adminDataService';
 import { calculateReadinessScore } from '../utils/readinessScore';
-import '../styles/admin.css';
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 

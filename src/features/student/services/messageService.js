@@ -10,6 +10,7 @@ import {
 import { db } from '../../../firebase';
 
 const localMessages = [];
+const DEMO_MESSAGES_KEY = 'preplens_demo_messages';
 
 function normalizeMessage(id, data) {
   const createdAt = data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now();
@@ -35,11 +36,23 @@ export async function appendAdminMessage({ userId, text }) {
   };
 
   if (!db) {
-    localMessages.push({ id: `local-${Date.now()}`, ...payload, createdAt: Date.now() });
+    const localPayload = { id: `local-${Date.now()}`, ...payload, createdAt: Date.now() };
+    localMessages.push(localPayload);
+    writeStoredMessage(localPayload);
     return;
   }
 
-  await addDoc(collection(db, 'messages'), payload);
+  try {
+    await addDoc(collection(db, 'messages'), payload);
+  } catch (error) {
+    if (isPermissionError(error)) {
+      const localPayload = { id: `local-${Date.now()}`, ...payload, createdAt: Date.now() };
+      localMessages.push(localPayload);
+      writeStoredMessage(localPayload);
+      return;
+    }
+    throw error;
+  }
 }
 
 export function subscribeMessagesForUser(userId, callback) {
@@ -49,7 +62,7 @@ export function subscribeMessagesForUser(userId, callback) {
   }
 
   if (!db) {
-    callback(localMessages.filter((item) => item.userId === userId));
+    callback(readStoredMessages(userId));
     return () => {};
   }
 
@@ -60,7 +73,45 @@ export function subscribeMessagesForUser(userId, callback) {
     (snapshot) => callback(snapshot.docs.map((doc) => normalizeMessage(doc.id, doc.data()))),
     (error) => {
       console.error('Failed to subscribe to messages.', error);
-      callback([]);
+      callback(isPermissionError(error) ? readStoredMessages(userId) : []);
     }
   );
+}
+
+function canUseStorage() {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function isPermissionError(error) {
+  return error?.code === 'permission-denied' || String(error?.message || '').includes('Missing or insufficient permissions');
+}
+
+function readStoredMessages(userId) {
+  if (!canUseStorage()) {
+    return localMessages.filter((item) => item.userId === userId);
+  }
+
+  try {
+    const parsed = readAllStoredMessages();
+    const merged = [...parsed, ...localMessages];
+    return merged.filter((item) => item.userId === userId).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  } catch {
+    return localMessages.filter((item) => item.userId === userId);
+  }
+}
+
+function writeStoredMessage(message) {
+  if (!canUseStorage()) return;
+  const existing = readAllStoredMessages();
+  window.localStorage.setItem(DEMO_MESSAGES_KEY, JSON.stringify([message, ...existing]));
+}
+
+function readAllStoredMessages() {
+  if (!canUseStorage()) return [];
+  try {
+    const raw = window.localStorage.getItem(DEMO_MESSAGES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 }

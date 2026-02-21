@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginStudent } from '../services/authService';
-import '../styles/global.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -34,10 +33,10 @@ export default function Login() {
   };
 
   return (
-    <section style={styles.wrap}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2 style={styles.title}>PrepLens Login</h2>
-        <p style={styles.subtle}>Demo users: admin@email.com, student@email.com</p>
+    <section className="auth-page">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <h2 className="auth-title">PrepLens Login</h2>
+        <p className="auth-subtle">Demo users: admin@email.com, student@email.com (password: hello)</p>
         <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input
           placeholder="Password"
@@ -48,33 +47,11 @@ export default function Login() {
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Signing In...' : 'Sign In'}
         </button>
-        {error && <p style={styles.error}>{error}</p>}
-        <p style={styles.subtle}>
+        {error && <p className="auth-error">{error}</p>}
+        <p className="auth-subtle">
           New user? <Link to="/register">Create account</Link>
         </p>
       </form>
     </section>
   );
 }
-
-const styles = {
-  wrap: {
-    minHeight: '100vh',
-    display: 'grid',
-    placeItems: 'center',
-    padding: 16,
-  },
-  form: {
-    maxWidth: 360,
-    width: '100%',
-    display: 'grid',
-    gap: 10,
-    padding: 16,
-    border: '1px solid #ddd',
-    borderRadius: 8,
-    background: '#fff',
-  },
-  title: { margin: 0 },
-  subtle: { margin: 0, color: '#444' },
-  error: { margin: 0, color: '#b00020' },
-};
