@@ -3,31 +3,9 @@
   background: #fafafa;
 }
 
-.student-body {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-}
-
-.student-sidebar {
-  border-right: 1px solid #d9d9d9;
-  padding: 16px;
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  background: #fff;
-}
-
 .student-main {
   padding: 16px;
-}
-
-@media (max-width: 860px) {
-  .student-body {
-    grid-template-columns: 1fr;
-  }
-
-  .student-sidebar {
-    border-right: 0;
-    border-bottom: 1px solid #d9d9d9;
-  }
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
 }

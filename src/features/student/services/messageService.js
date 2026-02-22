@@ -2,7 +2,6 @@ import {
   addDoc,
   collection,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
   where,
@@ -13,7 +12,11 @@ const localMessages = [];
 const DEMO_MESSAGES_KEY = 'preplens_demo_messages';
 
 function normalizeMessage(id, data) {
-  const createdAt = data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now();
+  const createdAt = data.createdAt?.toMillis
+    ? data.createdAt.toMillis()
+    : Number.isFinite(Number(data.createdAt))
+      ? Number(data.createdAt)
+      : Date.now();
   return {
     id,
     userId: data.userId || '',
@@ -67,10 +70,14 @@ export function subscribeMessagesForUser(userId, callback) {
   }
 
   const messagesRef = collection(db, 'messages');
-  const messagesQuery = query(messagesRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+  const messagesQuery = query(messagesRef, where('userId', '==', userId));
   return onSnapshot(
     messagesQuery,
-    (snapshot) => callback(snapshot.docs.map((doc) => normalizeMessage(doc.id, doc.data()))),
+    (snapshot) => callback(
+      snapshot.docs
+        .map((doc) => normalizeMessage(doc.id, doc.data()))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    ),
     (error) => {
       console.error('Failed to subscribe to messages.', error);
       callback(readStoredMessages(userId));

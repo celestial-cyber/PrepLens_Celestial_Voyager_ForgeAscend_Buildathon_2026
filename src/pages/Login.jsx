@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loginStudent } from '../services/authService';
+import { hasFirebaseConfig } from '../firebase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -37,7 +38,11 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="auth-form">
         <h2 className="auth-title">PrepLens Login</h2>
         <p className="auth-subtle">Sign in to continue to your dashboard.</p>
-        <p className="auth-subtle">Demo users: admin@email.com, student@email.com (password: hello)</p>
+        {hasFirebaseConfig ? (
+          <p className="auth-subtle">Firebase auth is enabled for this build.</p>
+        ) : (
+          <p className="auth-subtle">Demo users: admin@email.com, student@email.com (password: hello)</p>
+        )}
         <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input
           placeholder="Password"

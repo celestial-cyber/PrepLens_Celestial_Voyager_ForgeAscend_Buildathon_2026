@@ -1,11 +1,11 @@
 .dashboard-page {
   background: #fff;
   color: #111;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  padding: 16px;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
+  padding: 18px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .dashboard-title {
@@ -31,8 +31,8 @@
 .dashboard-card,
 .dashboard-section {
   border: 1px solid #d8d8d8;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px;
   background: #fff;
   color: #111;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -64,6 +64,35 @@
   color: #000;
 }
 
+.dashboard-columns {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.dashboard-column {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.category-progress-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: center;
+}
+
+.category-progress-graph {
+  min-height: 220px;
+}
+
+.category-progress-detail {
+  border-left: 1px solid #e0e0e0;
+  padding-left: 12px;
+}
+
 .chart-wrap {
   height: 220px;
   margin-top: 8px;
@@ -81,6 +110,27 @@
   color: #444;
 }
 
+.streak-heatmap {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  max-width: 260px;
+}
+
+.streak-cell {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  border: 1px solid #d0d0d0;
+  background: #efefef;
+}
+
+.streak-cell-active {
+  background: #111;
+  border-color: #111;
+}
+
 .dashboard-empty {
   margin: 0;
   color: #555;
@@ -93,8 +143,8 @@
 
 .task-item {
   color: #111;
-  padding: 4px 6px;
-  border-radius: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -108,8 +158,8 @@
 
 .message-item {
   border: 1px solid #d8d8d8;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   background: #fff;
 }
 
@@ -122,4 +172,21 @@
   margin: 0;
   font-size: 12px;
   color: #555;
+}
+
+.category-pie-wrap {
+  height: 220px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .dashboard-columns,
+  .category-progress-row {
+    grid-template-columns: 1fr;
+  }
+
+  .category-progress-detail {
+    border-left: 0;
+    padding-left: 0;
+  }
 }

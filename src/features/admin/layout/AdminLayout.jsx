@@ -25,17 +25,9 @@ export default function AdminLayout() {
           <button type="button" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
-
-      <div className="admin-body">
-        <aside className="admin-sidebar" aria-label="Admin section links">
-          <Link to="/admin/dashboard">Dashboard</Link>
-          <Link to="/admin/students">Students</Link>
-          <Link to="/admin/create-task">Create Task</Link>
-        </aside>
-        <main className="admin-main">
-          <Outlet />
-        </main>
-      </div>
+      <main className="admin-main">
+        <Outlet />
+      </main>
     </div>
   );
 }

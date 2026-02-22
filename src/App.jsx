@@ -4,7 +4,7 @@ import Register from './pages/Register';
 import StudentLayout from './features/student/layout/StudentLayout';
 import StudentDashboard from './features/student/pages/StudentDashboard';
 import LogActivity from './features/student/pages/LogActivity';
-import StudentMessages from './features/student/pages/StudentMessages';
+import StudentNotifications from './features/student/pages/StudentNotifications';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import StudentList from './features/admin/pages/StudentList';
@@ -29,7 +29,8 @@ export default function App() {
         <Route path="dashboard" element={<StudentDashboard />} />
         <Route path="log" element={<LogActivity />} />
         <Route path="log-activity" element={<LogActivity />} />
-        <Route path="messages" element={<StudentMessages />} />
+        <Route path="messages" element={<Navigate to="/student/notifications" replace />} />
+        <Route path="notifications" element={<StudentNotifications />} />
       </Route>
 
       <Route path="/admin/login" element={<Navigate to="/login" replace />} />

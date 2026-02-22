@@ -86,10 +86,10 @@ textarea {
 
 .admin-page {
   display: grid;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
   background: #fff;
   color: #111;
 }
@@ -97,11 +97,11 @@ textarea {
 .admin-form {
   display: grid;
   gap: 10px;
-  max-width: 440px;
+  max-width: 520px;
   width: 100%;
-  padding: 16px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
   background: #fff;
 }
 
@@ -113,10 +113,11 @@ textarea {
 
 .admin-card {
   border: 1px solid #d8d8d8;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px;
   background: #fff;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  color: #111;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .admin-card:hover {
@@ -128,6 +129,7 @@ textarea {
 .admin-card h2,
 .admin-card p {
   margin-top: 0;
+  margin-bottom: 8px;
 }
 
 .admin-card-label {
@@ -138,7 +140,7 @@ textarea {
 
 .admin-card-value {
   margin: 8px 0 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
 }
 
@@ -150,8 +152,8 @@ textarea {
 
 .admin-table-wrap {
   overflow-x: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
   background: #fff;
 }
 
@@ -176,7 +178,7 @@ textarea {
 }
 
 .admin-student-activity {
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .admin-error {
@@ -222,6 +224,8 @@ textarea {
   padding: 12px 16px;
   border-bottom: 1px solid #ddd;
   background: #fff;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-brand {
@@ -234,31 +238,20 @@ textarea {
   gap: 12px;
 }
 
-.admin-body {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-}
-
-.admin-sidebar {
-  border-right: 1px solid #d9d9d9;
-  padding: 16px;
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  background: #fff;
-}
-
 .admin-main {
   padding: 16px;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (max-width: 860px) {
-  .admin-body {
-    grid-template-columns: 1fr;
+  .admin-nav {
+    justify-content: center;
   }
 
-  .admin-sidebar {
-    border-right: 0;
-    border-bottom: 1px solid #d9d9d9;
+  .admin-nav-links {
+    width: 100%;
+    justify-content: center;
   }
 }

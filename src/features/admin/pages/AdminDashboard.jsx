@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import StatsCards from '../components/StatsCards';
-import { getAllStudents } from '../services/adminDataService';
+import { subscribeAllStudents } from '../services/adminDataService';
 import { calculateReadinessScore } from '../utils/readinessScore';
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -21,29 +21,16 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
+    const stop = subscribeAllStudents((allStudents) => {
+      setStudents(allStudents);
+      setLoading(false);
+      setError('');
+    });
 
-    async function loadDashboard() {
-      try {
-        const allStudents = await getAllStudents();
-        if (!isMounted) return;
-        setStudents(allStudents);
-      } catch (loadError) {
-        if (!isMounted) return;
-        setError(loadError.message || 'Failed to load admin dashboard.');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadDashboard();
-    return () => {
-      isMounted = false;
-    };
+    return stop;
   }, []);
 
   const stats = useMemo(() => {
-    const activeCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
     let activeStudents = 0;
     let inactiveStudents = 0;
     let readinessTotal = 0;
@@ -51,8 +38,8 @@ export default function AdminDashboard() {
     students.forEach((student) => {
       const readiness = calculateReadinessScore({ readinessScore: student.readinessScore });
       readinessTotal += readiness;
-      if ((student.lastActiveAt || 0) >= activeCutoff) activeStudents += 1;
-      else inactiveStudents += 1;
+      if (student.status === 'Active') activeStudents += 1;
+      if (student.status === 'Inactive') inactiveStudents += 1;
     });
 
     return {
@@ -75,16 +62,7 @@ export default function AdminDashboard() {
   }, [students]);
 
   const weakStudents = useMemo(() => {
-    const activeCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
-    return students
-      .map((student) => {
-        const reasons = [];
-        if ((student.readinessScore || 0) < 40) reasons.push('low readiness');
-        if ((student.streakDays || 0) <= 1) reasons.push('low streak');
-        if ((student.lastActiveAt || 0) < activeCutoff) reasons.push('inactive');
-        return { ...student, reasons };
-      })
-      .filter((student) => student.reasons.length > 0);
+    return students.filter((student) => student.isFlagged);
   }, [students]);
 
   if (loading) {
@@ -146,7 +124,7 @@ export default function AdminDashboard() {
           <ul className="admin-flag-list">
             {weakStudents.map((student) => (
               <li key={student.uid || student.id}>
-                {student.name} ({student.email || 'N/A'}) - {student.reasons.join(', ')}
+                {student.name} ({student.email || 'N/A'}) - {student.riskReason || 'Needs attention'}
               </li>
             ))}
           </ul>

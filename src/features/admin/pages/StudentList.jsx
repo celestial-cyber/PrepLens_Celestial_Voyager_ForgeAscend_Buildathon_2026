@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import StudentTable from '../components/StudentTable';
-import { getActivitiesByUserId, getAllStudents } from '../services/adminDataService';
+import { subscribeAllStudents, subscribeStudentReport } from '../services/adminDataService';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -17,41 +17,49 @@ export default function StudentList() {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadStudents() {
-      try {
-        const allStudents = await getAllStudents();
-        if (!isMounted) return;
-        setStudents(allStudents);
-      } catch (loadError) {
-        if (!isMounted) return;
-        setError(loadError.message || 'Failed to load students.');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadStudents();
-    return () => {
-      isMounted = false;
-    };
+    const stop = subscribeAllStudents((allStudents) => {
+      setStudents(allStudents);
+      setLoading(false);
+      setError('');
+    });
+    return stop;
   }, []);
 
-  async function handleSelect(student) {
+  useEffect(() => {
+    if (!selectedStudent) return;
+    const key = selectedStudent.uid || selectedStudent.id;
+    const refreshed = students.find((item) => (item.uid || item.id) === key);
+    if (!refreshed) return;
+    if (
+      refreshed.readinessScore !== selectedStudent.readinessScore ||
+      refreshed.streakDays !== selectedStudent.streakDays ||
+      refreshed.completedTasks !== selectedStudent.completedTasks ||
+      refreshed.totalActivities !== selectedStudent.totalActivities ||
+      refreshed.lastActiveAt !== selectedStudent.lastActiveAt
+    ) {
+      setSelectedStudent(refreshed);
+    }
+  }, [students, selectedStudent]);
+
+  useEffect(() => {
+    if (!selectedStudent) return () => {};
+    const userId = selectedStudent.uid || selectedStudent.id;
+    const stop = subscribeStudentReport(userId, ({ activities: nextActivities, tasks: nextTasks }) => {
+      setActivities(nextActivities);
+      setTasks(nextTasks);
+    });
+    return stop;
+  }, [selectedStudent]);
+
+  function handleSelect(student) {
     setSelectedStudent(student);
     setActivities([]);
-
-    try {
-      const items = await getActivitiesByUserId(student.uid || student.id);
-      setActivities(items);
-    } catch (loadError) {
-      setError(loadError.message || 'Failed to load activities for student.');
-    }
+    setTasks([]);
   }
 
   const activityChartData = useMemo(() => {
@@ -73,9 +81,22 @@ export default function StudentList() {
     if (!selectedStudent) return null;
     const totalHours = activities.reduce((acc, item) => acc + (Number(item.hours) || 0), 0);
     const avgHours = activities.length ? Math.round((totalHours / activities.length) * 10) / 10 : 0;
-    const isWeak = (selectedStudent.readinessScore || 0) < 40 || (selectedStudent.streakDays || 0) <= 1;
-    return { totalHours, avgHours, isWeak };
-  }, [activities, selectedStudent]);
+    const avgCompletion = activities.length
+      ? Math.round(
+        activities.reduce((acc, item) => acc + (Number(item.completionPercent) || 0), 0) / activities.length
+      )
+      : 0;
+    const categoryCompletion = activities.reduce((acc, item) => {
+      const key = item.category || 'other';
+      if (!acc[key]) acc[key] = { total: 0, count: 0 };
+      acc[key].total += Number(item.completionPercent) || 0;
+      acc[key].count += 1;
+      return acc;
+    }, {});
+    const taskCount = tasks.length;
+    const completedTaskCount = tasks.filter((task) => task.completed).length;
+    return { totalHours, avgHours, avgCompletion, categoryCompletion, taskCount, completedTaskCount };
+  }, [activities, selectedStudent, tasks]);
 
   return (
     <section className="admin-page">
@@ -88,11 +109,38 @@ export default function StudentList() {
 
       {selectedStudent && (
         <article className="admin-card admin-student-activity">
-          <h2>{selectedStudent.name} Activity</h2>
+          <h2>{selectedStudent.name} Report</h2>
+          <p>Hours logged: {selectedStudent.hoursLogged ?? 0}</p>
+          <p>Readiness score: {selectedStudent.readinessScore ?? 0}%</p>
+          <p>Current streak: {selectedStudent.streakDays ?? 0} days</p>
+          <p>Completed tasks: {selectedStudent.completedTasks ?? 0}</p>
+          <p>Total activities: {selectedStudent.totalActivities ?? 0}</p>
+          <p>Status: {selectedStudent.status || 'No activity'}</p>
+          <p>Flagged: {selectedStudent.isFlagged ? 'Yes' : 'No'}</p>
+          {selectedStudent.riskReason && <p>Reason: {selectedStudent.riskReason}</p>}
           <p>Total hours logged: {selectedSummary?.totalHours ?? 0}</p>
           <p>Average hours per log: {selectedSummary?.avgHours ?? 0}</p>
-          <p>Risk status: {selectedSummary?.isWeak ? 'Flagged for attention' : 'Normal'}</p>
+          <p>Average chapter completion: {selectedSummary?.avgCompletion ?? 0}%</p>
+          <p>Tasks assigned: {selectedSummary?.taskCount ?? 0}</p>
+          <p>Tasks completed: {selectedSummary?.completedTaskCount ?? 0}</p>
+          <div>
+            {selectedSummary && Object.entries(selectedSummary.categoryCompletion).map(([key, value]) => (
+              <p key={key}>
+                {key}: {Math.round(value.total / (value.count || 1))}% avg completion
+              </p>
+            ))}
+          </div>
           {activities.length > 0 ? <Bar data={activityChartData} /> : <p>No activities found.</p>}
+          {tasks.length > 0 && (
+            <div>
+              <h3>Recent Assigned Tasks</h3>
+              {tasks.slice(0, 5).map((task) => (
+                <p key={task.id}>
+                  {task.title} - {task.completed ? 'Completed' : 'Pending'}
+                </p>
+              ))}
+            </div>
+          )}
         </article>
       )}
     </section>
